@@ -1,5 +1,4 @@
 from aes import generate_key, encrypt, decrypt
-import time
 import tkinter
 import customtkinter
 
@@ -55,20 +54,23 @@ class EncrypApp(customtkinter.CTk):
 
 
         self.lbl_web_info = customtkinter.CTkLabel(window, width=120, height=25, text="Enter website information")
-        self.lbl_web_info.place(relx=.5, rely=.1, anchor=tkinter.N)
+        self.lbl_web_info.place(relx=.5, rely=.05, anchor=tkinter.N)
 
         self.txtbox_website_encry = customtkinter.CTkEntry(window, width=120, height=25, placeholder_text="Website")
-        self.txtbox_website_encry.place(relx=.5, rely=.3, anchor=tkinter.CENTER)
+        self.txtbox_website_encry.place(relx=.5, rely=.25, anchor=tkinter.CENTER)
+
+        self.txtbox_username_encry = customtkinter.CTkEntry(window, width=120, height=25, placeholder_text="Username")
+        self.txtbox_username_encry.place(relx=.5, rely=.45, anchor=tkinter.CENTER)
 
         self.txtbox_password = customtkinter.CTkEntry(window, width=120, height=25, placeholder_text="Password", show="*")
-        self.txtbox_password.place(relx=.5, rely=.5, anchor=tkinter.CENTER)
+        self.txtbox_password.place(relx=.5, rely=.65, anchor=tkinter.CENTER)
 
         self.btn_add_record = customtkinter.CTkButton(window, width=120, height=32, text="Enter Record", command=self.exec_encry)
-        self.btn_add_record.place(relx=.5, rely=.8, anchor=tkinter.S)
+        self.btn_add_record.place(relx=.5, rely=.95, anchor=tkinter.S)
 
     def exec_encry(self):
 
-        flag = encrypt(self.txtbox_website_encry.get(), self.txtbox_password.get()) 
+        flag = encrypt(self.txtbox_website_encry.get(), self.txtbox_username_encry.get(),self.txtbox_password.get()) 
         if(flag == False):
             window = customtkinter.CTkToplevel(self)
             window.geometry("300x200")
@@ -85,21 +87,24 @@ class EncrypApp(customtkinter.CTk):
         window.title("Decrypt Record")
 
         self.lbl_decry_web = customtkinter.CTkLabel(window, width=120, height=25, text="Enter website to decrypt")
-        self.lbl_decry_web.place(relx=.5, rely=.1, anchor=tkinter.N)
+        self.lbl_decry_web.place(relx=.5, rely=.025, anchor=tkinter.N)
 
         self.txtbox_website_decry = customtkinter.CTkEntry(window, width=120, height=25, placeholder_text="Website")
-        self.txtbox_website_decry.place(relx=.5, rely=.35, anchor=tkinter.CENTER)
+        self.txtbox_website_decry.place(relx=.5, rely=.25, anchor=tkinter.CENTER)
 
         self.btn_fetch_record = customtkinter.CTkButton(window, width=120, height=32, text="Enter Website", command=self.exec_decry)
-        self.btn_fetch_record.place(relx=.5, rely=.665, anchor=tkinter.S)
+        self.btn_fetch_record.place(relx=.5, rely=.51, anchor=tkinter.S)
+
+        self.txtbox_final_user = customtkinter.CTkTextbox(window, width=200, height=10)
+        self.txtbox_final_user.place(relx=.5, rely = .65, anchor=tkinter.CENTER)
 
         self.txtbox_final_pass = customtkinter.CTkTextbox(window, width=200, height=10)
-        self.txtbox_final_pass.place(relx=.5, rely = .85, anchor=tkinter.CENTER)
+        self.txtbox_final_pass.place(relx=.5, rely = .87, anchor=tkinter.CENTER)
 
     def exec_decry(self):
-        flag = decrypt(self.txtbox_website_decry.get())
+        username, password = decrypt(self.txtbox_website_decry.get())
 
-        if(flag == None):       
+        if(username == None):       
             window = customtkinter.CTkToplevel(self)
             window.geometry("300x200")
             window.title("Error: Website DNE")
@@ -107,7 +112,8 @@ class EncrypApp(customtkinter.CTk):
             self.lbl_error_dne_web = customtkinter.CTkLabel(window, width=120, height=25, text="Error: Website was not found in records!")
             self.lbl_error_dne_web.place(relx=.5, rely=.1, anchor=tkinter.N)
         else:    
-            self.txtbox_final_pass.insert("0.0", decrypt(self.txtbox_website_decry.get())) 
+            self.txtbox_final_user.insert("0.0", username)
+            self.txtbox_final_pass.insert("0.0", password) 
 
 if __name__ == "__main__":
     app = EncrypApp()

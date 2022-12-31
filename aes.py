@@ -4,19 +4,20 @@ from Cryptodome.Cipher import AES
 
 def generate_key():
     key = token_bytes(32)
+    filepath = "./key.bin"
 
-    filepath = os.path.join("/media/minty/usb_key/", "key.bin")
     with open(filepath, "wb") as file:
         file.write(key)
 
 def open_key(): 
-    filepath = "/media/minty/usb_key/key.bin"
+    filepath = "./key.bin"
+
     with open(filepath, "rb") as file:
          return file.read()
 
-def encrypt(website, plaintxt):
-    filepath = "/media/minty/usb_data/data.txt"
-     
+def encrypt(website, username, password):
+    filepath = "./data.txt"
+
     #opens key
     key = open_key()
     details = []
@@ -35,10 +36,11 @@ def encrypt(website, plaintxt):
     #encryption
     cipher = AES.new(key, AES.MODE_EAX)
     nonce = cipher.nonce
-    encrypted_data, tag = cipher.encrypt_and_digest(plaintxt.encode("ascii"))
+    encrypted_data, tag = cipher.encrypt_and_digest(password.encode("ascii"))
 
     #append data to details
     details.append(website)
+    details.append(username)
 
     #convert binary to hex
     details.append(encrypted_data.hex())
@@ -51,8 +53,8 @@ def encrypt(website, plaintxt):
 
     return encrypted_data, tag, nonce
 
-def decrypt(website):
-    filepath = "/media/minty/usb_data/data.txt"   
+def decrypt(website): 
+    filepath = "./data.txt"
 
     #open data file
     with open(filepath, "r") as file:
@@ -64,18 +66,19 @@ def decrypt(website):
             #finds website
             if line_data[0] == website:
                 website = line_data[0]
-                encrypted_data = bytes.fromhex(line_data[1])
-                tag = bytes.fromhex(line_data[2])
-                nonce = bytes.fromhex(line_data[3])
+                username = line_data[1]
+                encrypted_data = bytes.fromhex(line_data[2])
+                tag = bytes.fromhex(line_data[3])
+                nonce = bytes.fromhex(line_data[4])
 
                 #decrypt plain text
                 key = open_key()
                 cipher = AES.new(key, AES.MODE_EAX, nonce)
-                plaintxt = cipher.decrypt(encrypted_data)
+                password = cipher.decrypt(encrypted_data)
 
                 try:
                     cipher.verify(tag)
-                    return plaintxt.decode("ascii")
+                    return username, password.decode("ascii")
 
                 except:
                     return False
